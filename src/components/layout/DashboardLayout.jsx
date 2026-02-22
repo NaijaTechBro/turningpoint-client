@@ -1,20 +1,35 @@
 
 
 // import React from 'react';
-// import { NavLink, Link } from 'react-router-dom'; // Added NavLink
+// import { NavLink } from 'react-router-dom';
 // import { useAuth } from '../../context/AuthContext';
-// import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList } from 'lucide-react';
+// import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList, Beaker, CheckCircle } from 'lucide-react';
 
 // const DashboardLayout = ({ children, title }) => {
 //   const { user, logout } = useAuth();
 
-//   const navItems = [
-//     { to: "/receptionist/dashboard", icon: <LayoutDashboard size={20}/>, label: "Overview" },
-//     { to: "/receptionist/patients", icon: <Users size={20}/>, label: "All Patients" },
-//     { to: "/receptionist/register", icon: <UserPlus size={20}/>, label: "Registration" },
-//     { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" },
-//     { to: "/receptionist/test-results", icon: <ClipboardList size={20}/>, label: "Test Results" },
-//   ];
+//   // Dynamically set the sidebar links based on the user's role
+//   const getNavItems = () => {
+//     if (user?.role === 'LabScientist') {
+//       return [
+//         { to: "/scientist/dashboard", icon: <Beaker size={20}/>, label: "Lab Queue" },
+//         // You can add more scientist-specific links later
+//       ];
+//     }
+    
+//     if (user?.role === 'Receptionist' || user?.role === 'Admin') {
+//       return [
+//         { to: "/receptionist/dashboard", icon: <LayoutDashboard size={20}/>, label: "Overview" },
+//         { to: "/receptionist/patients", icon: <Users size={20}/>, label: "All Patients" },
+//         { to: "/receptionist/register", icon: <UserPlus size={20}/>, label: "Registration" },
+//         { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" },
+//       ];
+//     }
+    
+//     return [];
+//   };
+
+//   const navItems = getNavItems();
 
 //   return (
 //     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
@@ -50,7 +65,7 @@
 //               <p className="text-sm font-bold text-brand-blue leading-none">{user?.firstName}</p>
 //               <p className="text-[10px] font-bold text-brand-green uppercase tracking-tighter mt-1">{user?.role}</p>
 //             </div>
-//             <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black">
+//             <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black uppercase">
 //               {user?.firstName?.[0]}
 //             </div>
 //           </div>
@@ -70,7 +85,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList, Beaker, CheckCircle } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList, Beaker, UserCog, Settings2 } from 'lucide-react';
 
 const DashboardLayout = ({ children, title }) => {
   const { user, logout } = useAuth();
@@ -80,20 +95,30 @@ const DashboardLayout = ({ children, title }) => {
     if (user?.role === 'LabScientist') {
       return [
         { to: "/scientist/dashboard", icon: <Beaker size={20}/>, label: "Lab Queue" },
-        // You can add more scientist-specific links later
       ];
     }
     
+    let items = [];
+
+    // Both Receptionist and Admin get these front-desk links
     if (user?.role === 'Receptionist' || user?.role === 'Admin') {
-      return [
+      items.push(
         { to: "/receptionist/dashboard", icon: <LayoutDashboard size={20}/>, label: "Overview" },
         { to: "/receptionist/patients", icon: <Users size={20}/>, label: "All Patients" },
         { to: "/receptionist/register", icon: <UserPlus size={20}/>, label: "Registration" },
-        { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" },
-      ];
+        { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" }
+      );
     }
     
-    return [];
+    // ONLY the Admin gets these system configuration links
+    if (user?.role === 'Admin') {
+      items.push(
+        { to: "/admin/dashboard", icon: <UserCog size={20}/>, label: "Personnel Hub" },
+        { to: "/admin/templates", icon: <Settings2 size={20}/>, label: "Template Engine" }
+      );
+    }
+    
+    return items;
   };
 
   const navItems = getNavItems();
@@ -103,7 +128,7 @@ const DashboardLayout = ({ children, title }) => {
       <aside className="w-64 bg-brand-blue text-white flex flex-col p-6 shadow-2xl z-20">
         <div className="text-xl font-black mb-10 text-brand-orange">TURNING POINT</div>
         
-        <nav className="flex-grow space-y-2">
+        <nav className="flex-grow space-y-2 overflow-y-auto hide-scrollbar">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -119,7 +144,7 @@ const DashboardLayout = ({ children, title }) => {
           ))}
         </nav>
 
-        <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest">
+        <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest mt-auto">
           <LogOut size={18} /> Sign Out
         </button>
       </aside>
@@ -129,10 +154,10 @@ const DashboardLayout = ({ children, title }) => {
           <h1 className="text-xl font-black text-brand-blue">{title}</h1>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-bold text-brand-blue leading-none">{user?.firstName}</p>
+              <p className="text-sm font-bold text-brand-blue leading-none">{user?.firstName} {user?.lastName}</p>
               <p className="text-[10px] font-bold text-brand-green uppercase tracking-tighter mt-1">{user?.role}</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black uppercase">
+            <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black uppercase shadow-md">
               {user?.firstName?.[0]}
             </div>
           </div>

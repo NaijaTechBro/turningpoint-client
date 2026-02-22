@@ -23,6 +23,9 @@ import LabQueue from './pages/scientist/LabQueue';
 import EnterResult from './pages/scientist/EnterResult';
 import OrderTest from './pages/receptionist/OrderTest';
 import TestOrders from './pages/receptionist/TestOrders';
+import TemplateManager from './pages/admin/TemplateManager';
+
+
 
 // Inside <Routes>
 
@@ -82,6 +85,16 @@ function App() {
   }
 />
 
+<Route 
+  path="/admin/templates" 
+  element={
+    <ProtectedRoute allowedRoles={['Admin']}>
+      <DashboardLayout title="Template Engine">
+        <TemplateManager />
+      </DashboardLayout>
+    </ProtectedRoute>
+  } 
+/>
 
 <Route 
   path="/scientist/dashboard" 
@@ -137,14 +150,16 @@ function App() {
   } 
 />
           {/* --- Protected Admin Routes --- */}
-          <Route 
-            path="/admin/dashboard" 
-            element={
-              <ProtectedRoute allowedRoles={['Admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
+<Route 
+  path="/admin/dashboard" 
+  element={
+    <ProtectedRoute allowedRoles={['Admin']}>
+      <DashboardLayout title="System Administration">
+        <AdminDashboard />
+      </DashboardLayout>
+    </ProtectedRoute>
+  } 
+/>
 
           {/* Placeholders for other roles */}
           <Route path="/scientist/dashboard" element={<ProtectedRoute allowedRoles={['LabScientist', 'Admin']}><div className="p-10">Scientist Dashboard</div></ProtectedRoute>} />

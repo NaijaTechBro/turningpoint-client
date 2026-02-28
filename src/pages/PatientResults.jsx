@@ -1,9 +1,23 @@
-
-
 import React, { useState } from 'react';
 import Navbar from '../components/home/Navbar';
 import { Search, FileText, Loader2, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import API from '../services/api';
+
+// Your native SVG Logo
+const Logo = () => (
+  <div className="flex items-center gap-3 justify-center mb-6">
+    <svg width="45" height="45" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 60 Q 25 30 50 35" stroke="#228B22" strokeWidth="6" strokeLinecap="round" fill="transparent" />
+      <path d="M50 85 C 50 85 15 55 15 35 C 15 20 30 15 40 25 C 50 35 50 35 50 35 C 50 35 50 35 60 25 C 70 15 85 20 85 35 C 85 55 50 85 50 85 Z" fill="#FF6B35" />
+      <rect x="44" y="32" width="12" height="26" rx="2" fill="#FFFFFF" />
+      <rect x="37" y="39" width="26" height="12" rx="2" fill="#FFFFFF" />
+    </svg>
+    <div className="flex flex-col text-left">
+      <span className="text-2xl font-bold text-brand-orange leading-none">Turning Point</span>
+      <span className="text-[10px] text-brand-green tracking-[0.2em] uppercase font-bold mt-1">HEALTH SERVICES</span>
+    </div>
+  </div>
+);
 
 const PatientResults = () => {
   const [labRef, setLabRef] = useState('');
@@ -21,7 +35,6 @@ const PatientResults = () => {
     setResultData(null);
     
     try {
-      // Hitting a safe public tracking endpoint
       const { data } = await API.get(`/test-requests/public/track/${labRef.trim().toUpperCase()}`);
       setResultData(data.data);
     } catch (err) {
@@ -34,14 +47,13 @@ const PatientResults = () => {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      // Hitting a public PDF generator route
       const response = await API.get(`/test-requests/public/pdf/${resultData._id}`, {
-        responseType: 'blob',
+        responseType: 'blob', // Expecting PDF binary
       });
+      
       const file = new Blob([response.data], { type: 'application/pdf' });
       const fileURL = URL.createObjectURL(file);
       
-      // Auto-trigger download for the patient
       const a = document.createElement('a');
       a.href = fileURL;
       a.download = `${resultData.labReference}-Report.pdf`;
@@ -49,7 +61,15 @@ const PatientResults = () => {
       a.click();
       a.remove();
     } catch (err) {
-      alert("Failed to download PDF. Please try again later.");
+      // FIX: When responseType is 'blob', Axios turns the JSON error into a Blob too! 
+      // We must extract the text to read the actual error message.
+      if (err.response && err.response.data instanceof Blob) {
+        const text = await err.response.data.text();
+        const jsonError = JSON.parse(text);
+        alert(jsonError.message || "Failed to download PDF.");
+      } else {
+        alert("Failed to download PDF. Please try again later.");
+      }
     } finally {
       setDownloading(false);
     }
@@ -58,13 +78,12 @@ const PatientResults = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center p-6">
+      <main className="flex-grow flex items-center justify-center p-6 mt-10">
         <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl max-w-xl w-full border border-gray-100 text-center relative overflow-hidden">
           
-          <div className="bg-brand-blue w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-100">
-            <FileText className="text-white" size={32} />
-          </div>
-          <h1 className="text-3xl font-black text-brand-blue mb-2">Access Your Results</h1>
+          <Logo />
+          
+          <h1 className="text-3xl font-black text-brand-blue mb-2 mt-4">Access Your Results</h1>
           <p className="text-gray-500 font-medium mb-10">Enter the Lab Reference Number from your receipt to securely download your official medical report.</p>
           
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">

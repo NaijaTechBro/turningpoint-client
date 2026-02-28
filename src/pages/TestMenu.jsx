@@ -104,7 +104,8 @@ const TestMenu = () => {
                 </div>
                 <div className="mt-6 pt-6 border-t border-gray-50 flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-500">Base Price</span>
-                  <span className="text-xl font-black text-brand-orange">₦{test.basePrice?.toLocaleString() || '0'}</span>
+                  {/* To this: */}
+<span className="text-xl font-black text-brand-orange">₦{test.price?.toLocaleString() || '0'}</span>
                 </div>
               </div>
             ))}

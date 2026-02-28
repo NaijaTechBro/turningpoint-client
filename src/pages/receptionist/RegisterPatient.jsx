@@ -6,15 +6,18 @@ import API from '../../services/api';
 const RegisterPatient = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
+  // Perfectly matches the updated Mongoose schema
   const [formData, setFormData] = useState({
-    firstName: '', lastName: '', email: '', phone: '', gender: 'Male', dateOfBirth: ''
+    firstName: '', lastName: '', email: '', phone: '', gender: 'Male', 
+    referringDoctor: '', referringClinic: '', dateReferred: '', age: ''
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await API.post('/patients', formData); // Triggers hospitalNumber & email
+      const { data } = await API.post('/patients', formData); 
       alert(`Success! Patient ID: ${data.data.hospitalNumber}`);
       navigate('/receptionist/patients');
     } catch (err) {
@@ -42,18 +45,21 @@ const RegisterPatient = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* COMPULSORY FIELDS */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">First Name</label>
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">First Name <span className="text-red-500">*</span></label>
             <input type="text" required placeholder="Sodiq" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
               onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
           </div>
+          
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Last Name</label>
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Last Name <span className="text-red-500">*</span></label>
             <input type="text" required placeholder="Adeiza" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
               onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
           </div>
+          
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Gender</label>
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Gender <span className="text-red-500">*</span></label>
             <select className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
               onChange={(e) => setFormData({...formData, gender: e.target.value})}>
               <option value="Male">Male</option>
@@ -61,23 +67,46 @@ const RegisterPatient = () => {
               <option value="Other">Other</option>
             </select>
           </div>
+
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Date of Birth</label>
-            <input type="date" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
-              onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})} />
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Age (Used for PDF Report)</label>
+            <input type="number" placeholder="e.g. 34" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+              onChange={(e) => setFormData({...formData, age: e.target.value})} />
           </div>
+
+          {/* OPTIONAL CONTACT INFO */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Email Address</label>
-            <input type="email" required placeholder="s.adeiza@example.com" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
-              onChange={(e) => setFormData({...formData, email: e.target.value})} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Phone Number</label>
-            <input type="tel" required placeholder="08123456789" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Phone Number / WhatsApp (Optional)</label>
+            <input type="tel" placeholder="08123456789" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
               onChange={(e) => setFormData({...formData, phone: e.target.value})} />
           </div>
 
-          <button type="submit" disabled={loading} className="md:col-span-2 py-5 bg-brand-orange text-white rounded-2xl font-black shadow-xl shadow-orange-200 flex justify-center items-center gap-3 hover:bg-orange-600 transition-all text-lg">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Email Address (Optional)</label>
+            <input type="email" placeholder="s.adeiza@example.com" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+              onChange={(e) => setFormData({...formData, email: e.target.value})} />
+          </div>
+
+          {/* REFERRAL INFO */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Referring Doctor (Optional)</label>
+            <input type="text" placeholder="Dr. Smith" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+              onChange={(e) => setFormData({...formData, referringDoctor: e.target.value})} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Referring Clinic (Optional)</label>
+            <input type="text" placeholder="General Hospital" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+              onChange={(e) => setFormData({...formData, referringClinic: e.target.value})} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 ml-2">Date Referred (Optional)</label>
+            <input type="date" className="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange font-bold text-brand-blue"
+              onChange={(e) => setFormData({...formData, dateReferred: e.target.value})} />
+          </div>
+
+          <button type="submit" disabled={loading} className="md:col-span-2 py-5 bg-brand-orange text-white rounded-2xl font-black shadow-xl shadow-orange-200 flex justify-center items-center gap-3 hover:bg-orange-600 transition-all text-lg mt-4">
             {loading ? <Loader2 className="animate-spin" /> : <><CheckCircle size={24}/> Complete Registration</>}
           </button>
         </form>

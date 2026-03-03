@@ -76,12 +76,13 @@ const AddStaffModal = ({ isOpen, onClose, onRefresh }) => {
 
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Assigned Role</label>
-            <select className="w-full border border-gray-200 rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-brand-orange outline-none"
-              value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-              <option value="Receptionist">Receptionist (Front Desk)</option>
-              <option value="LabScientist">Lab Scientist (Core Engine)</option>
-              <option value="Admin">System Administrator</option>
-            </select>
+            <select value={role} onChange={e => setRole(e.target.value)} className="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue font-bold text-brand-blue">
+  <option value="Receptionist">Receptionist</option>
+  <option value="LabScientist">Lab Scientist</option>
+  <option value="Sonographer">Sonographer</option>
+  <option value="LabTechnician">Lab Technician</option>
+  <option value="Admin">System Admin</option>
+</select>
           </div>
 
           <button type="submit" disabled={loading} className="w-full bg-brand-orange text-white py-4 rounded-xl font-bold hover:bg-orange-600 transition-all shadow-lg flex justify-center items-center gap-2">

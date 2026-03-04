@@ -16,7 +16,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard';
 import AllPatients from './pages/receptionist/AllPatients';
-import EditPatient from './pages/receptionist/Editpatients';
+import EditPatients from './pages/receptionist/Editpatients';
 import RegisterPatient from './pages/receptionist/RegisterPatient';
 import PatientDetails from './pages/receptionist/PatientDetails';
 import LabQueue from './pages/scientist/LabQueue';
@@ -88,7 +88,6 @@ function App() {
 <Route 
   path="/admin/templates" 
   element={
-    // ADD THE NEW ROLES TO THIS ARRAY 👇
     <ProtectedRoute allowedRoles={['Admin', 'LabScientist', 'Sonographer', 'LabTechnician']}>
       <DashboardLayout title="Template Engine">
         <TemplateManager />
@@ -134,7 +133,7 @@ function App() {
   element={
     <ProtectedRoute allowedRoles={['Receptionist', 'Admin']}>
       <DashboardLayout title="Edit Patient">
-        <EditPatient />
+        <EditPatients />
       </DashboardLayout>
     </ProtectedRoute>
   } 

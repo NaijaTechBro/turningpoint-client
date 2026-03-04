@@ -1,9 +1,11 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Save, ArrowLeft, Loader2, User } from 'lucide-react';
 import API from '../../services/api';
 
-const EditPatient = () => {
+const EditPatients = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,6 @@ const EditPatient = () => {
         const { data } = await API.get(`/patients/${id}`);
         const patientData = data.data;
         
-        // Format the referral date properly for the HTML input, if it exists
         let formattedDateReferred = '';
         if (patientData.dateReferred) {
           formattedDateReferred = new Date(patientData.dateReferred).toISOString().split('T')[0];
@@ -45,12 +46,15 @@ const EditPatient = () => {
     fetchPatient();
   }, [id, navigate]);
 
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       await API.put(`/patients/${id}`, formData);
-      navigate(`/receptionist/patients/${id}`);
+      
+      navigate(`/receptionist/patient-details/${id}`);
+      
     } catch (err) {
       alert(err.response?.data?.message || "Update failed");
     } finally {
@@ -150,4 +154,4 @@ const EditPatient = () => {
   );
 };
 
-export default EditPatient;
+export default EditPatients;

@@ -88,7 +88,8 @@ function App() {
 <Route 
   path="/admin/templates" 
   element={
-    <ProtectedRoute allowedRoles={['Admin']}>
+    // ADD THE NEW ROLES TO THIS ARRAY 👇
+    <ProtectedRoute allowedRoles={['Admin', 'LabScientist', 'Sonographer', 'LabTechnician']}>
       <DashboardLayout title="Template Engine">
         <TemplateManager />
       </DashboardLayout>
@@ -99,7 +100,7 @@ function App() {
 <Route 
   path="/scientist/dashboard" 
   element={
-    <ProtectedRoute allowedRoles={['LabScientist', 'Admin']}>
+    <ProtectedRoute allowedRoles={['LabScientist', 'Admin', 'Sonographer', 'LabTechnician']}>
       <DashboardLayout title="Laboratory Engine">
         <LabQueue />
       </DashboardLayout>
@@ -109,7 +110,7 @@ function App() {
 <Route 
   path="/scientist/enter-result/:labRef" 
   element={
-    <ProtectedRoute allowedRoles={['LabScientist', 'Admin']}>
+    <ProtectedRoute allowedRoles={['LabScientist', 'Admin','Sonographer', 'LabTechnician']}>
       <DashboardLayout title="Results Processing">
         <EnterResult />
       </DashboardLayout>
@@ -162,8 +163,9 @@ function App() {
 />
 
           {/* Placeholders for other roles */}
-          <Route path="/scientist/dashboard" element={<ProtectedRoute allowedRoles={['LabScientist', 'Admin']}><div className="p-10">Scientist Dashboard</div></ProtectedRoute>} />
+          {/* <Route path="/scientist/dashboard" element={<ProtectedRoute allowedRoles={['LabScientist', 'LabTechnician', 'Sonographer', 'Admin']}><div className="p-10">Scientist Dashboard</div></ProtectedRoute>} />
           <Route path="/receptionist/dashboard" element={<ProtectedRoute allowedRoles={['Receptionist', 'Admin']}><div className="p-10">Receptionist Dashboard</div></ProtectedRoute>} />
+         */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>

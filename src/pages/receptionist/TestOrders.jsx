@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, FileText, Send, Loader2, ClipboardX, Search, CalendarDays } from 'lucide-react';
+import { Clock, CheckCircle, FileText, Mail, MessageCircle, Loader2, ClipboardX, Search, CalendarDays } from 'lucide-react';
 import API from '../../services/api';
 
 const TestOrders = () => {
@@ -40,14 +40,49 @@ const TestOrders = () => {
     }
   };
 
-  const handleSendEmail = async (id) => {
-    setActionLoading({ id, action: 'email' });
+  // --- DISPATCH VIA EMAIL ---
+  const handleEmailDispatch = async (order) => {
+    setActionLoading({ id: order._id, action: 'email' });
     try {
-      await API.post(`/test-requests/${id}/send-report`);
-      alert("Success: Report securely emailed to the patient!");
+      const res = await API.post(`/test-requests/${order._id}/send-report`);
+      if (res.data.emailSent) {
+        alert("Success: PDF report securely emailed to the patient!");
+      } else {
+        alert("Report marked as Delivered. (Note: The email failed to send, check server logs).");
+      }
       fetchOrders(); 
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to send email. Please check server logs.");
+      alert(err.response?.data?.message || "Failed to dispatch email.");
+    } finally {
+      setActionLoading({ id: null, action: null });
+    }
+  };
+
+  // --- DISPATCH VIA WHATSAPP (FREE wa.me LINK) ---
+  const handleWhatsAppDispatch = async (order) => {
+    setActionLoading({ id: order._id, action: 'whatsapp' });
+    
+    try {
+      // 1. Tell backend to mark it as DELIVERED (We don't care if email fails here)
+      await API.post(`/test-requests/${order._id}/send-report`);
+      
+      // 2. Format Phone Number and Open WhatsApp
+      let phone = order.patient.phone.trim();
+      if (phone.startsWith('0')) {
+        phone = '234' + phone.slice(1);
+      } else if (phone.startsWith('+')) {
+        phone = phone.slice(1);
+      }
+
+      const portalUrl = `${window.location.origin}/results`; 
+      const text = `Hello ${order.patient.firstName},\n\nYour laboratory test results for *${order.template?.testName || 'your test'}* are ready at Turning Point Health Services.\n\n🧪 *Lab Reference:* ${order.labReference}\n\nPlease visit our secure portal to download your official medical report:\n👉 ${portalUrl}\n\nThank you!`;
+
+      // Pop open WhatsApp Web
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+      
+      fetchOrders(); 
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update status on server.");
     } finally {
       setActionLoading({ id: null, action: null });
     }
@@ -67,7 +102,6 @@ const TestOrders = () => {
     const labRef = order.labReference.toLowerCase();
     const hospNum = order.patient?.hospitalNumber?.toLowerCase() || '';
     const testName = order.template?.testName?.toLowerCase() || '';
-    
     const dateStr = new Date(order.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toLowerCase();
 
     return fullName.includes(search) || 
@@ -123,6 +157,7 @@ const TestOrders = () => {
                   const { day, time } = formatDate(order.createdAt);
                   return (
                     <tr key={order._id} className="hover:bg-blue-50/30 transition-colors group">
+                      
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2 text-brand-blue">
                           <CalendarDays size={16} className="text-brand-orange" />
@@ -132,16 +167,20 @@ const TestOrders = () => {
                           </div>
                         </div>
                       </td>
+                      
                       <td className="px-8 py-6">
                         <span className="font-black text-brand-blue text-sm">{order.labReference}</span>
                       </td>
+                      
                       <td className="px-8 py-6">
                         <p className="font-bold text-brand-blue">{order.patient?.firstName} {order.patient?.lastName}</p>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{order.patient?.hospitalNumber}</p>
                       </td>
+                      
                       <td className="px-8 py-6">
                         <span className="font-bold text-brand-blue">{order.template?.testName || 'Unknown / Deleted Test'}</span>
                       </td>
+                      
                       <td className="px-8 py-6">
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
                           order.status === 'VERIFIED' ? 'bg-green-100 text-green-600' : 
@@ -151,10 +190,10 @@ const TestOrders = () => {
                           {order.status.replace('_', ' ')}
                         </div>
                       </td>
+
+                      {/* --- ACTIONS COLUMN --- */}
                       <td className="px-8 py-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          
-                          {/* FIX: Now shows buttons for BOTH Verified and Delivered statuses */}
                           {(order.status === 'VERIFIED' || order.status === 'DELIVERED') ? (
                             <>
                               {order.status === 'DELIVERED' && (
@@ -162,26 +201,57 @@ const TestOrders = () => {
                                   Delivered
                                 </span>
                               )}
+                              
+                              {/* PDF BUTTON */}
                               <button 
                                 onClick={() => handleViewPDF(order._id, order.labReference)}
                                 disabled={actionLoading.id === order._id}
                                 className="px-3 py-2 bg-brand-blue text-white rounded-lg text-xs font-bold hover:bg-blue-900 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                title="View PDF"
                               >
                                 {actionLoading.id === order._id && actionLoading.action === 'pdf' 
                                   ? <Loader2 size={14} className="animate-spin"/> 
                                   : <FileText size={14}/>}
-                                PDF
                               </button>
+                              
+                              {/* EMAIL BUTTON (Always shows, greys out if no email) */}
                               <button 
-                                onClick={() => handleSendEmail(order._id)}
+                                onClick={() => {
+                                  if (!order.patient?.email) return alert("This patient does not have an email address on file.");
+                                  handleEmailDispatch(order);
+                                }}
                                 disabled={actionLoading.id === order._id}
-                                title="Email Report"
-                                className="px-3 py-2 bg-orange-100 text-brand-orange rounded-lg text-xs font-bold hover:bg-brand-orange hover:text-white transition-colors flex items-center gap-2 disabled:opacity-50"
+                                title={order.patient?.email ? "Send via Email" : "No Email Provided"}
+                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 disabled:opacity-50 ${
+                                  order.patient?.email 
+                                    ? 'bg-orange-100 text-brand-orange hover:bg-brand-orange hover:text-white' 
+                                    : 'bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed'
+                                }`}
                               >
                                 {actionLoading.id === order._id && actionLoading.action === 'email' 
                                   ? <Loader2 size={14} className="animate-spin"/> 
-                                  : <Send size={14}/>}
+                                  : <Mail size={14}/>}
                               </button>
+
+                              {/* WHATSAPP BUTTON (Always shows, greys out if no phone) */}
+                              <button 
+                                onClick={() => {
+                                  if (!order.patient?.phone) return alert("This patient does not have a phone number on file.");
+                                  handleWhatsAppDispatch(order);
+                                }}
+                                disabled={actionLoading.id === order._id}
+                                title={order.patient?.phone ? "Send via WhatsApp" : "No Phone Provided"}
+                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 disabled:opacity-50 ${
+                                  order.patient?.phone 
+                                    ? 'bg-green-100 text-brand-green hover:bg-brand-green hover:text-white' 
+                                    : 'bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed'
+                                }`}
+                              >
+                                {actionLoading.id === order._id && actionLoading.action === 'whatsapp' 
+                                  ? <Loader2 size={14} className="animate-spin"/> 
+                                  : <MessageCircle size={14}/>}
+                              </button>
+
                             </>
                           ) : (
                             <span className="text-[10px] font-bold text-gray-400 italic">
@@ -190,6 +260,7 @@ const TestOrders = () => {
                           )}
                         </div>
                       </td>
+
                     </tr>
                   );
                 })

@@ -3,7 +3,7 @@
 // import React from 'react';
 // import { NavLink } from 'react-router-dom';
 // import { useAuth } from '../../context/AuthContext';
-// import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList, Beaker, CheckCircle } from 'lucide-react';
+// import { LogOut, LayoutDashboard, Users, UserPlus, ClipboardList, Beaker, UserCog, Settings2 } from 'lucide-react';
 
 // const DashboardLayout = ({ children, title }) => {
 //   const { user, logout } = useAuth();
@@ -13,20 +13,30 @@
 //     if (user?.role === 'LabScientist') {
 //       return [
 //         { to: "/scientist/dashboard", icon: <Beaker size={20}/>, label: "Lab Queue" },
-//         // You can add more scientist-specific links later
 //       ];
 //     }
     
+//     let items = [];
+
+//     // Both Receptionist and Admin get these front-desk links
 //     if (user?.role === 'Receptionist' || user?.role === 'Admin') {
-//       return [
+//       items.push(
 //         { to: "/receptionist/dashboard", icon: <LayoutDashboard size={20}/>, label: "Overview" },
 //         { to: "/receptionist/patients", icon: <Users size={20}/>, label: "All Patients" },
 //         { to: "/receptionist/register", icon: <UserPlus size={20}/>, label: "Registration" },
-//         { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" },
-//       ];
+//         { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" }
+//       );
 //     }
     
-//     return [];
+//     // ONLY the Admin gets these system configuration links
+//     if (user?.role === 'Admin') {
+//       items.push(
+//         { to: "/admin/dashboard", icon: <UserCog size={20}/>, label: "Personnel Hub" },
+//         { to: "/admin/templates", icon: <Settings2 size={20}/>, label: "Template Engine" }
+//       );
+//     }
+    
+//     return items;
 //   };
 
 //   const navItems = getNavItems();
@@ -36,7 +46,7 @@
 //       <aside className="w-64 bg-brand-blue text-white flex flex-col p-6 shadow-2xl z-20">
 //         <div className="text-xl font-black mb-10 text-brand-orange">TURNING POINT</div>
         
-//         <nav className="flex-grow space-y-2">
+//         <nav className="flex-grow space-y-2 overflow-y-auto hide-scrollbar">
 //           {navItems.map((item) => (
 //             <NavLink
 //               key={item.to}
@@ -52,7 +62,7 @@
 //           ))}
 //         </nav>
 
-//         <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest">
+//         <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest mt-auto">
 //           <LogOut size={18} /> Sign Out
 //         </button>
 //       </aside>
@@ -62,10 +72,10 @@
 //           <h1 className="text-xl font-black text-brand-blue">{title}</h1>
 //           <div className="flex items-center gap-4">
 //             <div className="text-right">
-//               <p className="text-sm font-bold text-brand-blue leading-none">{user?.firstName}</p>
+//               <p className="text-sm font-bold text-brand-blue leading-none">{user?.firstName} {user?.lastName}</p>
 //               <p className="text-[10px] font-bold text-brand-green uppercase tracking-tighter mt-1">{user?.role}</p>
 //             </div>
-//             <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black uppercase">
+//             <div className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white font-black uppercase shadow-md">
 //               {user?.firstName?.[0]}
 //             </div>
 //           </div>
@@ -92,16 +102,10 @@ const DashboardLayout = ({ children, title }) => {
 
   // Dynamically set the sidebar links based on the user's role
   const getNavItems = () => {
-    if (user?.role === 'LabScientist') {
-      return [
-        { to: "/scientist/dashboard", icon: <Beaker size={20}/>, label: "Lab Queue" },
-      ];
-    }
-    
     let items = [];
 
-    // Both Receptionist and Admin get these front-desk links
-    if (user?.role === 'Receptionist' || user?.role === 'Admin') {
+    // 1. FRONT DESK (Receptionist & Admin)
+    if (['Receptionist', 'Admin'].includes(user?.role)) {
       items.push(
         { to: "/receptionist/dashboard", icon: <LayoutDashboard size={20}/>, label: "Overview" },
         { to: "/receptionist/patients", icon: <Users size={20}/>, label: "All Patients" },
@@ -109,12 +113,19 @@ const DashboardLayout = ({ children, title }) => {
         { to: "/receptionist/test-orders", icon: <ClipboardList size={20}/>, label: "Test Orders" }
       );
     }
+
+    // 2. LABORATORY ROLES (All 3 Lab Roles & Admin)
+    if (['LabScientist', 'Sonographer', 'LabTechnician', 'Admin'].includes(user?.role)) {
+      items.push(
+        { to: "/scientist/dashboard", icon: <Beaker size={20}/>, label: "Lab Queue" },
+        { to: "/admin/templates", icon: <Settings2 size={20}/>, label: "Template Engine" }
+      );
+    }
     
-    // ONLY the Admin gets these system configuration links
+    // 3. SYSTEM ADMINISTRATION (Admin Only)
     if (user?.role === 'Admin') {
       items.push(
-        { to: "/admin/dashboard", icon: <UserCog size={20}/>, label: "Personnel Hub" },
-        { to: "/admin/templates", icon: <Settings2 size={20}/>, label: "Template Engine" }
+        { to: "/admin/dashboard", icon: <UserCog size={20}/>, label: "Personnel Hub" }
       );
     }
     
@@ -125,7 +136,7 @@ const DashboardLayout = ({ children, title }) => {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
-      <aside className="w-64 bg-brand-blue text-white flex flex-col p-6 shadow-2xl z-20">
+      <aside className="w-64 bg-brand-blue text-white flex flex-col p-6 shadow-2xl z-20 shrink-0">
         <div className="text-xl font-black mb-10 text-brand-orange">TURNING POINT</div>
         
         <nav className="flex-grow space-y-2 overflow-y-auto hide-scrollbar">
@@ -144,7 +155,7 @@ const DashboardLayout = ({ children, title }) => {
           ))}
         </nav>
 
-        <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest mt-auto">
+        <button onClick={logout} className="flex items-center gap-3 text-white/50 hover:text-white pt-6 border-t border-white/10 font-bold uppercase text-xs tracking-widest mt-auto transition-colors">
           <LogOut size={18} /> Sign Out
         </button>
       </aside>

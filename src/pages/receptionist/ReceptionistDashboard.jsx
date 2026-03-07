@@ -36,7 +36,7 @@ const ReceptionistDashboard = () => {
           <input 
             type="text" value={searchTerm} onChange={(e) => handleSearch(e.target.value)}
             className="w-full p-5 bg-gray-50 rounded-2xl outline-none border focus:border-brand-orange font-bold text-brand-blue"
-            placeholder="Search by Hospital ID, Name or Phone..."
+            placeholder="Search by Labouratory ID, Name or Phone..."
           />
           {searchResults.length > 0 && (
             <div className="absolute w-full mt-2 bg-white shadow-2xl rounded-2xl z-50 divide-y overflow-hidden border border-gray-100">
@@ -63,7 +63,7 @@ const ReceptionistDashboard = () => {
         <table className="w-full text-left">
           <thead className="bg-gray-50/50">
             <tr>
-              <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Hospital ID</th>
+              <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Labouratory ID</th>
               <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Full Name</th>
               <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
             </tr>

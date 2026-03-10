@@ -17,7 +17,7 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <Phone size={14} className="text-brand-orange" />
-            <span className="font-semibold">08182246491, 07098141804</span>
+            <span className="font-semibold">08140331605, 08085531553</span>
           </div>
           <div className="hidden md:flex items-center gap-1.5">
             <Clock size={14} className="text-brand-orange" />

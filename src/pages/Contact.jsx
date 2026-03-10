@@ -18,14 +18,14 @@ const Contact = () => {
           
           <div className="bg-gray-50 p-8 rounded-2xl text-center border border-gray-100">
             <Phone className="text-brand-green mx-auto mb-4" size={32} />
-            <h3 className="font-bold text-brand-blue mb-2">Call Us</h3>
-            <p className="text-gray-600 text-sm">0818 224 6491<br/>0709 814 1804</p>
+            <h3 className="font-bold text-brand-blue mb-2">Whatsapp and Call Us</h3>
+            <p className="text-gray-600 text-sm">08140331605<br/>08085531553</p>
           </div>
           
           <div className="bg-gray-50 p-8 rounded-2xl text-center border border-gray-100">
             <Mail className="text-brand-blue mx-auto mb-4" size={32} />
             <h3 className="font-bold text-brand-blue mb-2">Email Us</h3>
-            <p className="text-gray-600 text-sm">info@turningpoint.com<br/>support@turningpoint.com</p>
+            <p className="text-gray-600 text-sm">info@turningpointhealth.site</p>
           </div>
         </div>
       </main>
